@@ -5,5 +5,4 @@ dist
 docs
 coverage
 _.log
-.env
 .env._
