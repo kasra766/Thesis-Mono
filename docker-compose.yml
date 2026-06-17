@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16
+
+    container_name: thesis-postgres
+
+    restart: always
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: thesis_db
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+
+    container_name: thesis-monolith
+
+    restart: always
+
+    depends_on:
+      - postgres
+
+    ports:
+      - "4000:4000"
+
+    environment:
+      DATABASE_URL: postgresql://postgres:123456@postgres:5432/thesis_db
+      JWT_SECRET: SUPER_SECRET_KEY
+      PORT: 4000
+
+volumes:
+  postgres_data:
