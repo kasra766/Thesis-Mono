@@ -18,7 +18,28 @@ export class ProductsService {
   async findAll(page = 1, limit = 20, search?: string) {
     const skip = (page - 1) * limit;
 
-    return this.prisma.product.findMany({
+    const count = await this.prisma.product.count({
+      where: search
+        ? {
+            OR: [
+              {
+                name: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                description: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+            ],
+          }
+        : {},
+    });
+
+    const products = await this.prisma.product.findMany({
       where: search
         ? {
             OR: [
@@ -43,6 +64,11 @@ export class ProductsService {
         createdAt: 'desc',
       },
     });
+
+    return {
+      count,
+      data: products,
+    };
   }
 
   async findOne(id: string) {
@@ -58,15 +84,32 @@ export class ProductsService {
   }
 
   async update(id: string, dto: UpdateProductDto) {
+    await this.findOne(id);
+
     return this.prisma.product.update({
-      where: { id },
+      where: {
+        id,
+      },
+
       data: dto,
     });
   }
 
   async remove(id: string) {
-    return this.prisma.product.delete({
-      where: { id },
+    const product = await this.findOne(id);
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    await this.prisma.product.delete({
+      where: {
+        id,
+      },
     });
+
+    return {
+      message: 'Product deleted',
+    };
   }
 }
