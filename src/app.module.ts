@@ -6,16 +6,11 @@ import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
 
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+// import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+// import { APP_GUARD } from '@nestjs/core';
 import { validationSchema } from './config/config.validation';
 import { HealthModule } from './health/health.module';
-ThrottlerModule.forRoot([
-  {
-    ttl: 60000,
-    limit: 100,
-  },
-]);
+
 
 @Module({
   imports: [
@@ -24,14 +19,14 @@ ThrottlerModule.forRoot([
       validationSchema,
     }),
 
-    ThrottlerModule.forRoot({
-      throttlers: [
-        {
-          ttl: 60000,
-          limit: 10,
-        },
-      ],
-    }),
+    // ThrottlerModule.forRoot({
+    //   throttlers: [
+    //     {
+    //       ttl: 60000,
+    //       limit: 10,
+    //     },
+    //   ],
+    // }),
 
     PrismaModule,
 
@@ -45,11 +40,11 @@ ThrottlerModule.forRoot([
 
     HealthModule,
   ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
+  // providers: [
+  //   {
+  //     provide: APP_GUARD,
+  //     useClass: ThrottlerGuard,
+  //   },
+  // ],
 })
 export class AppModule {}

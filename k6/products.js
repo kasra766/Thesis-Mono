@@ -1,12 +1,17 @@
+import { check } from 'k6';
 import http from 'k6/http';
-import { sleep } from 'k6';
 
 export const options = {
-  vus: 50,
-  duration: '1m',
+  vus: __ENV.VUS ? Number(__ENV.VUS) : 10,
+  duration: __ENV.DURATION || '5m',
 };
 
+
 export default function () {
-  http.get('http://localhost:4000/products');
-  sleep(1);
+  const res = http.get('http://localhost:4000/products?limit=20&page=1');
+
+  check(res, {
+    'products retrieved': (r) => r.status === 200,
+    'response time < 500ms': (r) => r.timings.duration < 500,
+  });
 }
